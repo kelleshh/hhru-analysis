@@ -73,3 +73,28 @@ def parse_dummy(html: str) -> List[Dict[str, Any]]:
     """
     return []
 
+
+
+# Page fetching
+
+def fetch_page(session: requests.Session, page: int) -> Optional[str]:
+    params = { # type: ignore
+        'area': AREA,
+        'page': page-1,
+        "hhtmFrom": "vacancy_search_list",
+        "items_on_page": PER_PAGE,
+        # можно еще добавть фильтры другие
+    }
+    resp = session.get(
+        BASE_URL,
+        params=params, # type: ignore
+        headers=HEADERS,
+        timeout=REQUEST_TIMEOUT,
+    )
+
+    if resp.status_code == 200 and 'data-qa' in resp.text:
+        return resp.text
+    else:
+        logging.warning(f'Non-OK or suspicious response: {resp.status_code} (len={len(resp.text)})')
+        return None
+    
