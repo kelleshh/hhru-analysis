@@ -61,3 +61,15 @@ def make_session() -> requests.Session:
     return session
 
 
+
+# Parsing dummy
+
+def parse_dummy(html: str) -> List[Dict[str, Any]]:
+    """
+    TOD0: сюда позже надо добавить разбор вакансий из сохраненного HTML.
+    Пример целевых полей:
+      - vacancy_id, name, employer, area, published_at, salary, url
+    На данном шаге мы ничего не парсим — только сохраняем сырой HTML.
+    """
+    return []
+
