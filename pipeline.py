@@ -24,7 +24,7 @@ ROLE_END: int = 174
 
 PER_PAGE = 50
 
-OUT_DIR = Path("./data/raw_html")
+OUT_DIR = Path("C:/Users/mixso/OneDrive/Desktop/hhru-analysis/data/raw_html") 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 REQUEST_TIMEOUT = (5, 20)  # (connect, read)
@@ -98,3 +98,37 @@ def fetch_page(session: requests.Session, page: int) -> Optional[str]:
         logging.warning(f'Non-OK or suspicious response: {resp.status_code} (len={len(resp.text)})')
         return None
     
+
+    
+# Main process
+
+def main():
+    logging.basicConfig(level=logging.INFO, 
+                        format="%(asctime)s %(levelname)s %(message)s")
+    session: requests.Session = make_session()
+
+    logging.info(f'Start fetching roles {ROLE_START}-{ROLE_END} (area={AREA})')
+
+    for i in range(ROLE_START, ROLE_END + 1):
+        try:
+            html: str | None = fetch_page(session, i)
+            if not html:
+                logging.warning(f'Skip page {i}: empty or blocked')
+            else:
+                out_path: Path = OUT_DIR / f'hh_search_page_{i:03d}.html'
+                out_path.write_text(html, encoding='utf-8')
+                logging.info(f'Saved page {i} -> {out_path} ({len(html)/1024:.1f} KB)')
+                # заглушка вызова парсера
+                # records = parse_dummy(html)
+                # TOD0: сохранить извлечённые записи в CSV/DB
+        except Exception as e:
+            logging.exception(f'Error on page {i}: {e}')
+
+        # Pause between queries - human imitation
+        time.sleep(random.uniform(*DELAY_RANGE_SEC))
+    
+    logging.info('End.')
+    
+
+if __name__ == '__main__':
+    main()
